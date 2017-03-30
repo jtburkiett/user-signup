@@ -15,10 +15,87 @@
 # limitations under the License.
 #
 import webapp2
+import re
+
+# html boilerplate for the top of every page
+page_header = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Signup</title>
+    <style type="text/css">
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Signup</h1>
+        <form method="post">
+            <table>
+                <tr>
+                    <td><label for="username">Username</label></td>
+                    <td>
+                        <input name="username" type="text" value="" required>
+                        <span class="error"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                    <td>
+                        <input name="password" type="password" value="" required>
+                        <span class="error"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="verify">Verify Password</label></td>
+                    <td>
+                        <input name="verify" type="password" value="" required>
+                        <span class="error"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="email">Email (optional)</label></td>
+                    <td>
+                        <input name="email" type="email" value="">
+                        <span class="error"></span>
+                    </td>
+                </tr>
+            </table>
+            <input type="submit">
+        </form>
+
+
+"""
+
+# html boilerplate for the bottom of every page
+page_footer = """
+</body>
+</html>
+"""
+
+
+UNR = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+def valid_username(username):
+    return username and UNR.match(username)
+
+PWR = re.compile(r"^.{3,20}$")
+def valid_password(password):
+    return password and PWR.match(password)
+
+EMR = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
+def valid_email(email):
+    return not email or EMR.match(email)
 
 class MainHandler(webapp2.RequestHandler):
+
     def get(self):
-        self.response.write('Hello world!')
+        self.response.write(page_header + page_footer)
+
+
+
+
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler)
