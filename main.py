@@ -16,6 +16,7 @@
 #
 import webapp2
 import re
+import cgi
 
 # html boilerplate for the top of every page
 page_header = """
@@ -31,27 +32,32 @@ page_header = """
 </head>
 <body>
     <h1>Signup</h1>
+"""
+errors =
+    "<span class='error'>That's not a valid username</span>"
+
+form= """
         <form method="post">
             <table>
                 <tr>
                     <td><label for="username">Username</label></td>
                     <td>
                         <input name="username" type="text" value="" required>
-                        <span class="error"></span>
+                        "{0}"
                     </td>
                 </tr>
                 <tr>
                     <td><label for="password">Password</label></td>
                     <td>
                         <input name="password" type="password" value="" required>
-                        <span class="error"></span>
+                        <span class="error" value=""></span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="verify">Verify Password</label></td>
                     <td>
                         <input name="verify" type="password" value="" required>
-                        <span class="error"></span>
+                        <span class="error" value=""></span>
                     </td>
                 </tr>
                 <tr>
@@ -66,7 +72,7 @@ page_header = """
         </form>
 
 
-"""
+""".format(errors)
 
 # html boilerplate for the bottom of every page
 page_footer = """
@@ -90,7 +96,32 @@ def valid_email(email):
 class MainHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.write(page_header + page_footer)
+
+        error = self.request.get("error")
+        if error:
+            error_esc = cgi.escape(error, quote=True)
+            error =  error_esc
+        else:
+            error = ""
+
+        # combine all the pieces to build the content of our response
+
+        content = page_header + form + page_footer
+        self.response.write(content)
+
+
+    def post(self):
+
+        username = self.request.get('username')
+
+        if not valid_username(username):
+            error = "{0}".format(errors)
+            self.redirect("/?error=", error)
+
+
+
+
+
 
 
 
@@ -98,5 +129,5 @@ class MainHandler(webapp2.RequestHandler):
 
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainHandler),
 ], debug=True)
