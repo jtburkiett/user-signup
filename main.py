@@ -41,7 +41,7 @@ form= """
                 <tr>
                     <td><label for="username">Username</label></td>
                     <td>
-                        <input name="username" type="text" value="" required>
+                        <input name="username" type="text" value="%(username)s" required>
                         <span class="error" value="" style ="color: red">%(user_error)s</span>
                     </td>
                 </tr>
@@ -49,21 +49,21 @@ form= """
                     <td><label for="password">Password</label></td>
                     <td>
                         <input name="password" type="password" value="" required>
-                        <span class="error" value=""style ="color: red">%(pass_error)s</span>
+                        <span class="error" value="" style ="color: red">%(pass_error)s</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="verify">Verify Password</label></td>
                     <td>
                         <input name="verify" type="password" value="" required>
-                        <span class="error" value=""style ="color: red">%(ver_error)s</span>
+                        <span class="error" value="" style ="color: red">%(ver_error)s</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="email">Email (optional)</label></td>
                     <td>
-                        <input name="email" type="email" value="">
-                        <span class="error"style ="color: red"></span>
+                        <input name="email" type="email" value="%(email)s">
+                        <span class="error" value="" style ="color: red">%(email_error)s</span>
                     </td>
                 </tr>
             </table>
@@ -107,11 +107,14 @@ content = page_header + form + page_footer
 
 class MainHandler(webapp2.RequestHandler):
 
-    def write_form(self, user_error='', pass_error='', ver_error=''):
+    def write_form(self, username='', user_error='', pass_error='', ver_error='', email='', email_error=''):
 
-        self.response.write(content % {"user_error": user_error,
+        self.response.write(content % { "username": username,
+                                        "user_error": user_error,
                                         "pass_error": pass_error,
-                                        "ver_error": ver_error,})
+                                        "ver_error": ver_error,
+                                        "email": email,
+                                        "email_error": email_error})
     def get(self):
 
         self.write_form()
@@ -126,23 +129,29 @@ class MainHandler(webapp2.RequestHandler):
         email = self.request.get('email')
 
 
-
         if not valid_username(username):
             user_error = "Please enter a valid username."
             has_error = True
+        else:
+            False
+
         if not valid_password(password):
             pass_error = "Please enter a valid password."
             has_error = True
-        if password != verify:
-            ver_error = "Your passwords did not match."
-            has_error = True
-        if not valid_email(email):
+            if password != verify:
+                    ver_error = "Your passwords did not match."
+                    has_error = True
+        else:
+            False
+
+        if valid_email(email) is not True:
             email_error = "That is not a valid email."
             has_error = True
-
+        else:
+            False
 
         if has_error:
-            self.write_form(user_error, pass_error, ver_error)
+            self.write_form(username, user_error, pass_error, ver_error, email)
         else:
             self.response.out.write("<h1>Welcome " + username + "!!</h1>")
 
