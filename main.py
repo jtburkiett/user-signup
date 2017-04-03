@@ -63,7 +63,7 @@ form= """
                     <td><label for="email">Email (optional)</label></td>
                     <td>
                         <input name="email" type="email" value="">
-                        <span class="error"style ="color: red">%(e_error)s</span>
+                        <span class="error"style ="color: red"></span>
                     </td>
                 </tr>
             </table>
@@ -107,12 +107,11 @@ content = page_header + form + page_footer
 
 class MainHandler(webapp2.RequestHandler):
 
-    def write_form(self, user_error='', pass_error='', ver_error='', e_error=''):
+    def write_form(self, user_error='', pass_error='', ver_error=''):
 
-        self.response.write(content % {"e_error": e_error,
-                                        "user_error": user_error,
+        self.response.write(content % {"user_error": user_error,
                                         "pass_error": pass_error,
-                                        "ver_error": ver_error})
+                                        "ver_error": ver_error,})
     def get(self):
 
         self.write_form()
@@ -138,14 +137,14 @@ class MainHandler(webapp2.RequestHandler):
             ver_error = "Your passwords did not match."
             has_error = True
         if not valid_email(email):
-            e_error = "That is not a valid email."
+            email_error = "That is not a valid email."
             has_error = True
 
 
         if has_error:
             self.write_form(user_error, pass_error, ver_error)
         else:
-            self.response.out.write("Welcome " + username + "!!")
+            self.response.out.write("<h1>Welcome " + username + "!!</h1>")
 
 
 
