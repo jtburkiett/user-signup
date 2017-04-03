@@ -33,8 +33,7 @@ page_header = """
 <body>
     <h1>Signup</h1>
 """
-errors =
-    "<span class='error'>That's not a valid username</span>"
+
 
 form= """
         <form method="post">
@@ -43,28 +42,28 @@ form= """
                     <td><label for="username">Username</label></td>
                     <td>
                         <input name="username" type="text" value="" required>
-                        "{0}"
+                        <span class="error" value="" style ="color: red">%(user_error)s</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="password">Password</label></td>
                     <td>
                         <input name="password" type="password" value="" required>
-                        <span class="error" value=""></span>
+                        <span class="error" value=""style ="color: red">%(pass_error)s</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="verify">Verify Password</label></td>
                     <td>
                         <input name="verify" type="password" value="" required>
-                        <span class="error" value=""></span>
+                        <span class="error" value=""style ="color: red">%(ver_error)s</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="email">Email (optional)</label></td>
                     <td>
                         <input name="email" type="email" value="">
-                        <span class="error"></span>
+                        <span class="error"style ="color: red">%(e_error)s</span>
                     </td>
                 </tr>
             </table>
@@ -72,12 +71,23 @@ form= """
         </form>
 
 
-""".format(errors)
+"""
 
 # html boilerplate for the bottom of every page
 page_footer = """
 </body>
 </html>
+"""
+
+welcome = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome!</title>
+
+</head>
+<body>
+    <h1>Welcome!</h1>
 """
 
 
@@ -93,30 +103,53 @@ EMR = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 def valid_email(email):
     return not email or EMR.match(email)
 
+content = page_header + form + page_footer
+
 class MainHandler(webapp2.RequestHandler):
 
+    def write_form(self, user_error='', pass_error='', ver_error='', e_error=''):
+
+        self.response.write(content % {"e_error": e_error,
+                                        "user_error": user_error,
+                                        "pass_error": pass_error,
+                                        "ver_error": ver_error})
     def get(self):
 
-        error = self.request.get("error")
-        if error:
-            error_esc = cgi.escape(error, quote=True)
-            error =  error_esc
-        else:
-            error = ""
-
-        # combine all the pieces to build the content of our response
-
-        content = page_header + form + page_footer
-        self.response.write(content)
+        self.write_form()
 
 
     def post(self):
 
+        has_error = False
         username = self.request.get('username')
+        password = self.request.get('password')
+        verify = self.request.get('verify')
+        email = self.request.get('email')
+
+
 
         if not valid_username(username):
-            error = "{0}".format(errors)
-            self.redirect("/?error=", error)
+            user_error = "Please enter a valid username."
+            has_error = True
+        if not valid_password(password):
+            pass_error = "Please enter a valid password."
+            has_error = True
+        if password != verify:
+            ver_error = "Your passwords did not match."
+            has_error = True
+        if not valid_email(email):
+            e_error = "That is not a valid email."
+            has_error = True
+
+
+        if has_error:
+            self.write_form(user_error, pass_error, ver_error)
+        else:
+            self.response.out.write("Welcome " + username + "!!")
+
+
+
+
 
 
 
