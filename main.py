@@ -62,7 +62,7 @@ form= """
                 <tr>
                     <td><label for="email">Email (optional)</label></td>
                     <td>
-                        <input name="email" type="email" value="%(email)s">
+                        <input name="email" type="text" value="%(email)s">
                         <span class="error" value="" style ="color: red">%(email_error)s</span>
                     </td>
                 </tr>
@@ -133,25 +133,32 @@ class MainHandler(webapp2.RequestHandler):
             user_error = "Please enter a valid username."
             has_error = True
         else:
-            False
+            user_error = ""
+
 
         if not valid_password(password):
             pass_error = "Please enter a valid password."
             has_error = True
-            if password != verify:
-                    ver_error = "Your passwords did not match."
-                    has_error = True
         else:
-            False
+            pass_error = ""
+
+        if password != verify:
+                ver_error = "Your passwords did not match."
+                has_error = True
+        else:
+            ver_error = ""
+
+
 
         if valid_email(email) is not True:
             email_error = "That is not a valid email."
             has_error = True
         else:
-            False
+            email_error = ""
+
 
         if has_error:
-            self.write_form(username, user_error, pass_error, ver_error, email)
+            self.write_form(username, user_error, pass_error, ver_error, email, email_error)
         else:
             self.response.out.write("<h1>Welcome " + username + "!!</h1>")
 
